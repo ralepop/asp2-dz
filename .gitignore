@@ -1,3 +1,6 @@
 .DS_Store
 a.out
 a.txt
+program.dSYM
+.vscode
+program

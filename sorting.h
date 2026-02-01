@@ -37,11 +37,11 @@ class MergeInsertSort final : public SortingAlgorithm {
 public:
     void sort(Image* image, SortingDirection direction) override {
         const int n = image->getElementCount();
-
-        int* f = new int[n];
+        
+        int* f = new int[n];  // pomocni niz
 
         for (int i = 0; i < n; i++) {
-            f[i] = i; // pomocni niz
+            f[i] = i;
         }
 
         directMerge(f, n, image, direction);
@@ -54,7 +54,7 @@ public:
 
         // postavljanje piksela na tacna mesta
         for (int i = 0; i < n; i++) {
-            while (inv[i] != i) {
+            while (inv[i] != i) { // ako nije na dobroj poziciji
                 int t = inv[i];
                 image->swapElements(i, t);
                 std::swap(inv[i], inv[t]);
@@ -73,10 +73,15 @@ private:
         int* f2 = new int[n];
 
         while (l < n) {
-            int count1 = 0, count2 = 0;
+
+            int count1 = 0;
+            int count2 = 0;
+            
             split(f, l, f1, f2, n, count1, count2);
 
-            int i = 0, j = 0, k = 0;
+            int i = 0;
+            int j = 0;
+            int k = 0;
 
             while (i < count1 && j < count2) {
                 int u1 = std::min(i + l - 1, count1 - 1);
@@ -106,11 +111,11 @@ private:
             int valA = image->getElement(a[i]);
             int valB = image->getElement(b[j]);
 
-            bool condition;
-            if (direction == ASCENDING) condition = (valA <= valB);
-            else condition = (valA >= valB);
+            bool cond;
+            if (direction == ASCENDING) cond = (valA <= valB);
+            else cond = (valA >= valB);
 
-            if (condition) {
+            if (cond) {
                 c[k++] = a[i++];
             } else {
                 c[k++] = b[j++];
