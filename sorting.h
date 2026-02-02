@@ -36,7 +36,7 @@ public:
 class MergeInsertSort final : public SortingAlgorithm {
 public:
 
-    MergeInsertSort(double c) : c_constant(c) {}
+    MergeInsertSort(int k) : k_constant(k) {}
 
     void sort(Image* image, SortingDirection direction) override {
         const int n = image->getElementCount();
@@ -73,7 +73,7 @@ public:
 
 private:
 
-    double c_constant;
+    int k_constant;
 
     void directMerge(int* f, int* v, int n, SortingDirection direction) {
         int l = 1;
@@ -82,15 +82,14 @@ private:
 
         while (l < n) {
 
-            // markova heuristika
-            for (int start = 0; start < n; start += 2 * l) {
-                int end = std::min(start + 2 * l - 1, n - 1);
-
-                if (heuristicCheck(f, v, start, end, direction, c_constant)) {
+            // matijina heuristika
+            if (2 * l <= k_constant) {
+                for (int start = 0; start < n; start += 2 * l) {
+                    int end = std::min(start + 2 * l - 1, n - 1);
                     insertionSort(f, v, start, end, direction);
                 }
             }
-            // kraj markove heuristike
+            // kraj matijine heuristike
 
             int count1 = 0;
             int count2 = 0;

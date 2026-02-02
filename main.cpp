@@ -20,9 +20,9 @@ int main() {
 
         switch (choice) {
             case 1: {
-                double c;
-                std::cout << "Unesi konstantu c za Markovu heuristiku: ";
-                std::cin >> c;
+                int k;
+                std::cout << "Unesi prag k za Matijinu heuristiku: ";
+                std::cin >> k;
 
                 std::string inputPath, outputPath;
                 std::cout << "Unesi putanju input fajla: ";            
@@ -30,7 +30,7 @@ int main() {
                 std::cout << "Unesi putanju output fajla: ";
                 std::cin >> outputPath;
                 
-                SortingAlgorithm* algorithm = new MergeInsertSort(c);
+                SortingAlgorithm* algorithm = new MergeInsertSort(k);
 
                 Stopwatch sw;
                 sw.start();
@@ -44,6 +44,10 @@ int main() {
                 break;
             }
             case 2: {
+                double c;
+                std::cout << "Unesi konstantu c za Markovu heuristiku: ";
+                std::cin >> c;
+
                 std::string inputPath, outputPath;
                 std::cout << "Unesi putanju input fajla: ";            
                 std::cin >> inputPath;
