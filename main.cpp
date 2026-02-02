@@ -36,7 +36,7 @@ int main() {
                 sw.start();
                 
                 ImageProcessor::reconstructImage(inputPath.c_str(), outputPath.c_str(), algorithm);
-
+                
                 long long time = sw.stop();
                 std::cout << "Vreme: " << time << " ms\n";
                 
@@ -45,19 +45,25 @@ int main() {
             }
             case 2: {
                 double c;
-                std::cout << "Unesi konstantu c za Markovu heuristiku: ";
+                std::cout << "Unesi konstantu c za Sanjinu heuristiku: ";
                 std::cin >> c;
-
+                
                 std::string inputPath, outputPath;
                 std::cout << "Unesi putanju input fajla: ";            
                 std::cin >> inputPath;
                 std::cout << "Unesi putanju output fajla: ";
                 std::cin >> outputPath;
                 
-                SortingAlgorithm* algorithm = new ExampleSort;
+                SortingAlgorithm* algorithm = new QuickBubbleSort(c);
+                
+                Stopwatch sw;
+                sw.start();
 
                 ImageProcessor::reconstructImage(inputPath.c_str(), outputPath.c_str(), algorithm);
 
+                long long time = sw.stop();
+                std::cout << "Vreme: " << time << " ms\n";
+                
                 delete algorithm;
                 break;
             }

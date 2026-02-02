@@ -3,6 +3,7 @@
 
 #include "image.h"
 #include <algorithm>
+#include <stack>
 #include <utility>
 
 enum SortingDirection {
@@ -172,6 +173,101 @@ private:
 
         return inv <= c * (end - start + 1);
     }
+};
+
+class QuickBubbleSort final : public SortingAlgorithm {
+public:
+
+    QuickBubbleSort(double c) : c_constant(c) {}
+
+    void sort(Image* image, SortingDirection direction) override {
+        const int n = image->getElementCount();
+        
+        int* f = new int[n];  // pomocni niz
+        int* v = new int[n]; // kesiranje
+
+        for (int i = 0; i < n; i++) {
+            f[i] = i;
+            v[i] = image->getElement(i);
+        }
+
+        quick(f, v, 0, n - 1, direction);
+
+        int* inv = new int[n];
+        for (int i = 0; i < n; i++) {
+            inv[f[i]] = i;
+        }
+
+        // postavljanje piksela na tacna mesta
+        for (int i = 0; i < n; i++) {
+            while (inv[i] != i) { // ako nije na dobroj poziciji
+                int t = inv[i];
+                image->swapElements(i, t);
+                std::swap(inv[i], inv[t]);
+            }
+        }
+
+        delete[] f;
+        delete[] v;
+        delete[] inv;
+    }
+
+private:
+
+    double c_constant;
+
+    void quick(int* f, int* a, int low, int high, SortingDirection dir) {
+        if (low >= high) return;
+
+        std::stack<std::pair<int, int>> s;
+        s.push({low, high});
+
+        while (!s.empty()) {
+            std::pair<int, int> range = s.top();
+            s.pop();
+
+            int currLow = range.first, currHigh = range.second;
+
+            int j = partition(f, a, currLow, currHigh, dir);
+
+            // ako ima mesta
+            if (j - 1 > currLow) s.push({currLow, j - 1});
+            if (j + 1 < currHigh) s.push({j + 1, currHigh});
+        }
+    }
+
+    int partition(int* f, int* a, int down, int up, SortingDirection dir) {
+        int i = down + 1, j = up, pivot = a[f[down]];
+
+        while (true) {
+            // pomeramo i desno dok ne nadjemo element koji je na pogresnoj strani
+            while (i <= j) {
+                bool check = (dir == ASCENDING) ? (a[f[i]] <= pivot) : (a[f[i]] >= pivot);
+                if (check) i++;
+                else break;
+            }
+
+            // pomeramo j levo dok ne nadjemo element koji je na pogresnoj strani
+            while (j >= i) {
+                bool check = (dir == ASCENDING) ? (a[f[j]] >= pivot) : (a[f[j]] <= pivot);
+                if (check) j--;
+                else break;
+            }
+
+            if (i < j) {
+                std::swap(f[i], f[j]);
+                i++;
+                j--;
+            } else break;
+        }
+
+        std::swap(f[down], f[j]);
+        return j;
+    }
+
+    // void bubble() {
+
+    // }
 };
 
 #endif //ASP2_DZ3_SORTING_H
