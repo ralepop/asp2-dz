@@ -3,6 +3,7 @@
 
 #include "image.h"
 #include <algorithm>
+#include <cmath>
 #include <stack>
 #include <utility>
 
@@ -161,18 +162,6 @@ private:
             a[j + 1] = k;
         }
     }
-
-    bool heuristicCheck(int* f, int* v, int start, int end, SortingDirection direction, double c) {
-        if (start >= end) return true;
-        int inv = 0;
-
-        for (int i = start; i < end; i++) {
-            if (direction == ASCENDING && v[f[i]] > v[f[i + 1]]) inv++;
-            else if (direction == DESCENDING && v[f[i]] < v[f[i + 1]]) inv++;
-        }
-
-        return inv <= c * (end - start + 1);
-    }
 };
 
 class QuickBubbleSort final : public SortingAlgorithm {
@@ -182,7 +171,9 @@ public:
 
     void sort(Image* image, SortingDirection direction) override {
         const int n = image->getElementCount();
+        if (n <= 1) return; // sprecava log(0) u partition funkciji
         
+        long long counter = 0;
         int* f = new int[n];  // pomocni niz
         int* v = new int[n]; // kesiranje
 
@@ -191,7 +182,7 @@ public:
             v[i] = image->getElement(i);
         }
 
-        quick(f, v, 0, n - 1, direction);
+        quick(f, v, 0, n - 1, n, counter, direction);
 
         int* inv = new int[n];
         for (int i = 0; i < n; i++) {
@@ -216,8 +207,10 @@ private:
 
     double c_constant;
 
-    void quick(int* f, int* a, int low, int high, SortingDirection dir) {
+    void quick(int* f, int* a, int low, int high, int n, long long& counter, SortingDirection dir) {
         if (low >= high) return;
+
+        const long long limit = c_constant * n * std::log2(n);
 
         std::stack<std::pair<int, int>> s;
         s.push({low, high});
@@ -227,8 +220,16 @@ private:
             s.pop();
 
             int currLow = range.first, currHigh = range.second;
-
-            int j = partition(f, a, currLow, currHigh, dir);
+            
+            // sanjina heuristika
+            bool check = checkHeuristic(limit, counter);
+            if (check) {
+                bubble(f, a, currLow, currHigh, dir);
+                continue;
+            }
+            // kraj sanjine heuristike
+            
+            int j = partition(f, a, currLow, currHigh, limit, counter, dir);
 
             // ako ima mesta
             if (j - 1 > currLow) s.push({currLow, j - 1});
@@ -236,21 +237,23 @@ private:
         }
     }
 
-    int partition(int* f, int* a, int down, int up, SortingDirection dir) {
+    int partition(int* f, int* a, int down, int up, const long long& limit, long long& counter, SortingDirection dir) {
         int i = down + 1, j = up, pivot = a[f[down]];
 
         while (true) {
             // pomeramo i desno dok ne nadjemo element koji je na pogresnoj strani
             while (i <= j) {
-                bool check = (dir == ASCENDING) ? (a[f[i]] <= pivot) : (a[f[i]] >= pivot);
-                if (check) i++;
+                bool cond = (dir == ASCENDING) ? (a[f[i]] <= pivot) : (a[f[i]] >= pivot);
+                counter++;
+                if (cond) i++;
                 else break;
             }
-
+            
             // pomeramo j levo dok ne nadjemo element koji je na pogresnoj strani
             while (j >= i) {
-                bool check = (dir == ASCENDING) ? (a[f[j]] >= pivot) : (a[f[j]] <= pivot);
-                if (check) j--;
+                bool cond = (dir == ASCENDING) ? (a[f[j]] >= pivot) : (a[f[j]] <= pivot);
+                counter++;
+                if (cond) j--;
                 else break;
             }
 
@@ -265,9 +268,26 @@ private:
         return j;
     }
 
-    // void bubble() {
+    void bubble(int* f, int* a, int start, int end, SortingDirection dir) {
+        int pos = end;
+        while (pos > start) {
+            int bound = std::min(pos, end);
+            pos = start;
 
-    // }
+            for (int i = start; i < bound; i++) {
+                bool cond = (dir == ASCENDING) ? (a[f[i]] > a[f[i + 1]]) : (a[f[i]] < a[f[i + 1]]);
+                if (cond) {
+                    std::swap(f[i], f[i + 1]);
+                    pos = i;
+                }
+            }
+        }
+    }
+
+    bool checkHeuristic(const long long& limit, long long& counter) {
+        if (counter >= limit) return true;
+        return false;
+    }
 };
 
 #endif //ASP2_DZ3_SORTING_H
