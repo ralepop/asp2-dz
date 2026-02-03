@@ -13,6 +13,22 @@ enum SortingDirection {
     DESCENDING
 };
 
+inline void permutation(Image* image, int* f, int n) {
+    int* inv = new int[n];
+    for (int i = 0; i < n; i++) {
+        inv[f[i]] = i;
+    }
+
+    for (int i = 0; i < n; i++) {
+        while (inv[i] != i) {
+            int t = inv[i];
+            image->swapElements(i, t);
+            std::swap(inv[i], inv[t]);
+        }
+    }
+    delete[] inv;
+}
+
 class SortingAlgorithm {
 public:
     virtual ~SortingAlgorithm() = default;
@@ -55,23 +71,10 @@ public:
         directMerge(f, v, n, direction);
 
         // inverzna mapa za permutaciju piksela
-        int* inv = new int[n];
-        for (int i = 0; i < n; i++) {
-            inv[f[i]] = i;
-        }
-
-        // postavljanje piksela na tacna mesta
-        for (int i = 0; i < n; i++) {
-            while (inv[i] != i) { // ako nije na dobroj poziciji
-                int t = inv[i];
-                image->swapElements(i, t);
-                std::swap(inv[i], inv[t]);
-            }
-        }
+        permutation(image, f, n);
 
         delete[] f;
         delete[] v;
-        delete[] inv;
     }
 
 private:
@@ -185,23 +188,10 @@ public:
 
         quick(f, v, 0, n - 1, n, counter, direction);
 
-        int* inv = new int[n];
-        for (int i = 0; i < n; i++) {
-            inv[f[i]] = i;
-        }
-
-        // postavljanje piksela na tacna mesta
-        for (int i = 0; i < n; i++) {
-            while (inv[i] != i) { // ako nije na dobroj poziciji
-                int t = inv[i];
-                image->swapElements(i, t);
-                std::swap(inv[i], inv[t]);
-            }
-        }
+        permutation(image, f, n);
 
         delete[] f;
         delete[] v;
-        delete[] inv;
     }
 
 private:
