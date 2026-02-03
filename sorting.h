@@ -6,6 +6,7 @@
 #include <cmath>
 #include <stack>
 #include <utility>
+#include <vector>
 
 enum SortingDirection {
     ASCENDING,
@@ -287,6 +288,32 @@ private:
     bool checkHeuristic(const long long& limit, long long& counter) {
         if (counter >= limit) return true;
         return false;
+    }
+};
+
+class StdSort final : public SortingAlgorithm {
+public:
+    void sort(Image* image, SortingDirection direction) override {
+        int n = image->getElementCount();
+
+        std::vector<int> arr(n), inv(n);
+        for (int i = 0; i < n; i++) arr[i] = i;
+
+        std::sort(arr.begin(), arr.end(), [&](int a, int b) {
+            if (direction == ASCENDING) {
+                return image->getElement(a) < image->getElement(b);
+            }
+            return image->getElement(a) > image->getElement(b);
+        });
+
+        for (int i = 0; i < n; i++) inv[arr[i]] = i;
+        for (int i = 0; i < n; i++) {
+            while (inv[i] != i) {
+                int t = inv[i];
+                image->swapElements(i, t);
+                std::swap(inv[i], inv[t]);
+            }
+        }
     }
 };
 
